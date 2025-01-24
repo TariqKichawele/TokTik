@@ -1,5 +1,6 @@
 'use client'
 
+import { Toaster } from '@/components/ui/toaster';
 import { getAuthedUser } from '@/services/auth';
 import useAuth from '@/stores/auth';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -15,9 +16,10 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
         setAuth(user);
       })
     }, []);
-    
+
   return (
     <GoogleOAuthProvider clientId={clientId}>
+      <Toaster />
       {children}
     </GoogleOAuthProvider>
   )

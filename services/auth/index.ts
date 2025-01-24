@@ -46,3 +46,8 @@ export async function getAuthedUserId() {
     const decoded = jwt.verify(token, privateKey) as { _id: string }
     return decoded._id
 }
+
+export async function removeAuthedUserCookie() {
+    const cookieJar = await cookies();
+    cookieJar.delete('auth__token')
+}

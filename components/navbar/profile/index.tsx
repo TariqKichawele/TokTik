@@ -1,37 +1,45 @@
 'use client'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useToast } from '@/hooks/use-toast';
 import { auth } from '@/services/auth';
+import useAuth from '@/stores/auth';
 import { GoogleLogin } from '@react-oauth/google';
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React from 'react'
 import { TbLogout } from 'react-icons/tb';
 
 const Profile = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const logout = () => {
-    console.log('logout');
-  }
+  const isLoggedIn = useAuth((state) => state.isLoggedIn);
+  const setAuth = useAuth((state) => state.setAuth);
+  const authedUser = useAuth((state) => state.user);
+  const logout = useAuth((state) => state.logout);
+  const { toast } = useToast();
   
   const onSuccess = async(res: { credential?: string }) => {
     if (!res.credential) return;
-    await auth(res.credential);
-    setIsLoggedIn(true);
+    const user = await auth(res.credential);
+    if (!user) return;
+    setAuth(user);
+    toast({
+      title: "Login Successful",
+      description: "You have successfully logged in",
+      variant: "default",
+    })
   }
   return (
     <>
-      {isLoggedIn ? (
+      {isLoggedIn && authedUser ? (
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-3">
             <Link
-              href={`/`}
+              href={`/user/${authedUser._id}`}
               className="text-neutral-400 font-semibold hover:underline"
             >
-              Tariq K
+              {authedUser.name}
             </Link>
             <Avatar className="w-8 h-8">
-              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarImage src={authedUser.picture_url} />
               <AvatarFallback>TK</AvatarFallback>
             </Avatar>
           </div>
@@ -45,7 +53,11 @@ const Profile = () => {
       ) : (
         <GoogleLogin 
           onSuccess={res => onSuccess(res)}
-          onError={() => console.error("Login Failed")}
+          onError={() => toast({
+            title: "Login Failed",
+            description: "There was an error logging in",
+            variant: "destructive",
+          })}
         />
       )}
     </>

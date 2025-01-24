@@ -1,3 +1,5 @@
+import { revalidateCurrentLocationData } from "@/services/app";
+import { removeAuthedUserCookie } from "@/services/auth";
 import { User } from "@/types"
 import { create } from 'zustand'
 
@@ -14,10 +16,14 @@ const useAuth = create<Store>((set) => ({
     isLoggedIn: false,
     setAuth: (u: User) => {
         set({ user: u, isLoggedIn: true })
+        revalidateCurrentLocationData(location.pathname)
     },
-    logout: () => {
+    logout: async () => {
         set({ user: null, isLoggedIn: false })
-    }
+        await removeAuthedUserCookie();
+        location.reload()
+    },
+
 }))
 
 export default useAuth
