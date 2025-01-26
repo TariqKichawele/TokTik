@@ -1,8 +1,11 @@
+import VideoList from "@/components/VideoList";
+import { getVideos } from "@/services/video";
 
-export default function Home() {
+export const revalidate = 0;
+
+export default async function Home() {
+  const videos = await getVideos();
   return (
-    <div>
-      Hello
-    </div>
+    <VideoList videos={videos} />
   );
 }
